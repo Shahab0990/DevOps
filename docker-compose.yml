@@ -1,0 +1,52 @@
+
+
+services:
+  # Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"
+    environment:
+      - PORT=5000
+      - DB_CONNECT=mongodb://mongo:27017/uber_clone
+      - JWT_SECRET=your_jwt_secret_key
+      - GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+    depends_on:
+      - mongo
+    networks:
+      - uber-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_BASE_URL=http://localhost:5000
+      - VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+    depends_on:
+      - backend
+    networks:
+      - uber-network
+
+  # MongoDB Service
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - uber-network
+
+# Define networks
+networks:
+  uber-network:
+
+# Define volumes
+volumes:
+  mongo-data:
